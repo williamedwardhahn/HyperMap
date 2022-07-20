@@ -10,9 +10,10 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
+@app.route("/<points>")
+def hello(points = "10"):
 
-    points = 10
+    points = int(points)
 
     data = np.random.rand(points, 2)
 
