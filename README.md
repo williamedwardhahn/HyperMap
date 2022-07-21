@@ -4,6 +4,9 @@ https://tohtml.com/python/
 
 https://carbon.now.sh/
 
+https://pypi.org/project/Flask-Cors/
+
+https://pypi.org/project/pyppeteer/
 
 https://github.com/cyberboysumanjay/Carbon-API/blob/master/app.py
 
