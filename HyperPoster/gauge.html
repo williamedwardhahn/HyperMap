@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <style>
+  body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #111111;
+  }
+
+  .gauge-wraper{
+    width: 300px;
+      height: 150px;
+      overflow: hidden;
+      position: absolute;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+  }
+
+  .gauge{
+  position: absolute;
+      bottom: -100%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    display: flex;
+    overflow: hidden;
+  }
+  .gauge::after{
+        content: '';
+      width: 120px;
+      background: white;
+      height: 120px;
+      display: block;
+      position: absolute;
+      border-radius: 50%;
+      bottom: 50%;
+      left: 50%;
+      transform: translate(-50%, 60px);
+      box-shadow: 0px 0px 2px 1px rgb(255 255 255 / 75%);
+  }
+  .range{
+    width: 50%;
+    height: 50%;
+  }
+  .first-half{
+    background: rgb(252,176,69);
+      background: linear-gradient(45deg, rgba(224,29,37,1) 49%, rgba(241,241,241,1) 50%, rgba(242,101,33,1) 51%);
+  }
+
+  .second-half{
+    background: rgb(252,221,14);
+  background: linear-gradient(135deg, rgba(252,221,14,1) 49%, rgba(241,241,241,1) 50%, rgba(57,180,73,1) 51%);
+    border-left: 2px solid #fff;
+          box-shadow: 8px 0px 2px 8px #fff;
+  }
+
+  .gauge-meter{
+    width: 1px;
+    height: 20px;
+    transition: transform .5s;
+  }
+
+  .gauge-meter::after{
+    content: '';
+    position: absolute;
+      border-top: 10px solid transparent;
+      border-left: 0px solid transparent;
+      border-right: 140px solid #9a9a9a;
+      border-bottom: 10px solid transparent;
+      bottom: 0;
+      left: -140px;
+      z-index: 9;
+  }
+  </style>
+</head>
+<body>
+
+<div class=gauge-wraper>
+<div class="gauge">
+    <div class="range first-half"></div>
+    <div class="range second-half"></div>
+</div>
+  <div class="gauge-meter"
+       style='transform: rotate(100deg)'>
+       </div>
+</div>
+
+
+</body>
+</html>
