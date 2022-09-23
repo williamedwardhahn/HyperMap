@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <title>Imports in Pyscript, Numpy,Random in the Browser !</title>
+    <py-env>
+        - numpy
+    </py-env>
+</head>
+<body>
+
+<py-script>
+
+import numpy as np
+import random as rd
+x = np.linspace(0, 10, 20)
+
+print('linspace: ', x)
+print('random: ', rd.random())
+
+</py-script>
+    
+</body>
+</html>
