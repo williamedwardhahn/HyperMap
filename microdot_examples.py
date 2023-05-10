@@ -1,3 +1,7 @@
+######################################################################
+#Guessing Game
+######################################################################
+
 from microdot_asyncio import Microdot, Response
 import random
 
@@ -69,6 +73,10 @@ async def new_game(request):
 app.run(debug=True, port=8008)
 
 
+
+######################################################################
+# Dice
+######################################################################
 
 from microdot_asyncio import Microdot, Response
 import random
@@ -165,6 +173,10 @@ app.run(debug=True, port=8008)
 
 
 
+######################################################################
+# Traffic Light
+######################################################################
+
 from microdot_asyncio import Microdot, Response
 app = Microdot()
 Response.default_content_type = 'text/html'
@@ -220,6 +232,9 @@ def toggle_light(request, light_index):
 app.run(debug=True, port=8008)
 
 
+######################################################################
+#Counter
+######################################################################
 
 from microdot_asyncio import Microdot, Response
 app = Microdot()
