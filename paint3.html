@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple HTML5 Paint</title>
+    <style>
+        /* Paint area */
+        #paintArea {
+            width: 500px;
+            height: 500px;
+            background-color: #fff;
+            position: relative;
+            border: 2px solid #000000;  /* Added border */
+        }
+        #paintArea canvas {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <label for="colorPicker">Choose a color:</label>
+    <input type="color" id="colorPicker" value="#000000">
+    <div id="paintArea">
+        <canvas id="paintCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        // Get the canvas and context
+        var canvas = document.getElementById('paintCanvas');
+        var context = canvas.getContext('2d');
+
+        // Initial color is black
+        var color = '#000000';  
+
+        // Get the color picker element
+        var colorPicker = document.getElementById('colorPicker');
+
+        // Update color when color picker changes
+        colorPicker.addEventListener('change', function() {
+            color = this.value;
+        });
+
+        // Track if the mouse button is pressed
+        var isDrawing = false;
+
+        canvas.addEventListener('mousedown', function(e) {
+            isDrawing = true;
+            context.beginPath();
+            context.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (isDrawing) {
+                context.strokeStyle = color;
+                context.lineTo(e.offsetX, e.offsetY);
+                context.stroke();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            isDrawing = false;
+        });
+    </script>
+</body>
+</html>
