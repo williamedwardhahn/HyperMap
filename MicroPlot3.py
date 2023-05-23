@@ -14,41 +14,15 @@ Response.default_content_type = 'text/html'
 async def landing(request):
     # Build the HTML
     page_content = f"""
-    <html>
-        <head>
-            <style>
-                .thumbnail {{
-                    width: 100px;
-                    height: 100px;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Welcome to our Matplotlib Showcase!</h1>
-            <ul>
-                <li>
-                    <a href="/scatter/10">
-                        Scatter Plot
-                    </a>
-                </li>
-                <li>
-                    <a href="/line/10">
-                        Line Plot
-                    </a>
-                </li>
-                <li>
-                    <a href="/histogram/10">
-                        Histogram
-                    </a>
-                </li>
-                <li>
-                    <a href="/bar/10">
-                        Bar Plot
-                    </a>
-                </li>
-            </ul>
-        </body>
-    </html>
+	<html>
+	<body>
+	<h1>Welcome to our Matplotlib Showcase!</h1>
+	<a href="/scatter/10">Scatter Plot</a> <br><br>
+	<a href="/line/10">Line Plot</a></li>  <br><br>
+	<a href="/histogram/10">Histogram</a>  <br><br>
+	<a href="/bar/10">Bar Plot</a> <br>
+	</body>
+	</html>
     """
     return page_content
 
