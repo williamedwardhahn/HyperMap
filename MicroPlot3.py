@@ -8,6 +8,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from PIL import Image
 
 app = Microdot()
+Response.default_content_type = 'text/html'
 
 @app.route('/')
 async def landing(request):
@@ -49,7 +50,7 @@ async def landing(request):
         </body>
     </html>
     """
-    return Response(page_content, headers={'Content-Type': 'text/html'})
+    return page_content
 
 
 
@@ -79,7 +80,7 @@ async def scatter(request, points = "10"):
     #clip off the xml headers from the image
     svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return Response(svg_img, headers={'Content-Type': 'image/svg+xml'})
+    return svg_img
 
     
 
@@ -106,7 +107,7 @@ async def line(request, points = "10"):
     fig.savefig(img, format='svg')
     svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return Response(svg_img, headers={'Content-Type': 'image/svg+xml'})
+    return svg_img
     
 
 @app.route('/histogram')    
@@ -131,7 +132,7 @@ async def histogram(request, points = "10"):
     fig.savefig(img, format='svg')
     svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return Response(svg_img, headers={'Content-Type': 'image/svg+xml'})
+    return svg_img
     
 
 @app.route('/bar')    
@@ -157,6 +158,7 @@ async def bar(request, points = "10"):
     fig.savefig(img, format='svg')
     svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return Response(svg_img, headers={'Content-Type': 'image/svg+xml'})
-
+    return svg_img
+    
+    
 app.run(host="0.0.0.0",port=8008,debug = True)
