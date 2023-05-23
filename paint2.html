@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>HTML5 Paint</title>
+
+        <style>
+            /* Tools */
+            #tools {
+                float: left;
+                width: 80px;
+                padding: 15px;
+            }
+
+            /* Body */
+            body {
+                background-color: #ccc;
+                overflow: hidden;
+            }
+
+            /* Paint area */
+            #paintArea {
+                width: 900px;
+                height: 600px;
+                background-color: #fff;
+                float: left;
+                position: relative;
+            }
+
+            #paintArea canvas {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                cursor: crosshair;
+            }
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            var selectedColor = "#0000ff";
+            var brushSize = 2;
+            
+            $(document).ready(function(){
+                $("#colorpicker").change(function(){
+                    selectedColor = this.value;
+                });
+
+                $("#brushSize input").change(function(){
+                    brushSize = this.value;
+                });
+            });
+            
+            function save() {
+                var paintCanvas = document.getElementById("paintCanvas");
+                window.open(paintCanvas.toDataURL("image/png"), "lastState");
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <hgroup>
+                <h1>HTML Paint</h1>
+            </hgroup>
+        </header>
+        <section id="tools">
+            <section id="colorPalette">
+                <label for="colorpicker">Pick a color: </label>
+                <input type="color" id="colorpicker" value="#0000ff">
+            </section>
+            
+            <section id="brushSize">
+                <label for="small">S</label>
+                <input type="radio" id="small" name="brushSize" value="2" checked><br>
+                <label for="medium">M</label>
+                <input type="radio" id="medium" name="brushSize" value="5"><br>
+                <label for="large">L</label>
+                <input type="radio" id="large" name="brushSize" value="10"><br>
+            </section>
+            
+            
+            <section id="toolBox">
+                <label for="square">Square</label>
+                <input type="checkbox" id="square"><br><br><br>
+                <input type="button" value="Save" onclick="save()">
+            </section>
+        </section>
+        <section id="paintArea">
+            <canvas id="paintCanvas" width="900" height="600"></canvas>
+            <canvas id="hintCanvas" width="900" height="600"></canvas>
+        </section>
+    </body>
+
+    <script type="text/javascript">
+        var paintCanvas = document.getElementById("paintCanvas");
+        var paintContext = paintCanvas.getContext("2d");
+        var hintCanvas = document.getElementById("hintCanvas");
+        var hintContext = hintCanvas.getContext("2d");
+
+        var isSquare = false;
+        
+        var isDragging = false;
+        var startPoint = { x:0, y:0 };
+        
+        
+        function canvasReady(){
+            hintCanvas.onmousedown = paintMouseDown;
+            hintCanvas.onmouseup = paintMouseUp;
+            hintCanvas.onmousemove = paintMouseMove;
+        }
+        
+        function paintMouseDown(e){
+            isDragging = true;
+            isSquare = document.getElementById("square").checked;
+            startPoint.x = e.offsetX;
+            startPoint.y = e.offsetY;
+            paintContext.lineWidth = brushSize;
+            paintContext.beginPath();
+            paintContext.moveTo(startPoint.x, startPoint.y);
+            paintContext.strokeStyle = selectedColor;
+        }
+        function paintMouseUp(e){
+            isDragging = false;
+            if(isSquare){
+                hintCanvas.width = hintCanvas.width;
+                var width = e.offsetX - startPoint.x;
+                var height = e.offsetY - startPoint.y;
+                
+                paintContext.beginPath();
+                paintContext.fillStyle = selectedColor;
+                paintContext.fillRect(startPoint.x, startPoint.y, width, height);
+            }
+        }
+        function paintMouseMove(e){
+            if(isDragging){
+                if(isSquare){
+                    hintCanvas.width = hintCanvas.width;
+                    var width = e.offsetX - startPoint.x;
+                    var height = e.offsetY - startPoint.y;
+                    hintContext.strokeRect(startPoint.x, startPoint.y, width, height);
+                }
+                else{
+                    paintContext.lineTo(e.offsetX, e.offsetY);
+                    paintContext.stroke();
+                }
+            }
+        }
+        
+        canvasReady();
+    </script>
+</html>
+
