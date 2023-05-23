@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>HTML5 Paint</title>
+
+        <style>
+            /* Tools */
+            #tools {
+                float: left;
+                width: 80px;
+                padding: 15px;
+            }
+
+            /* Color palette */
+            #colorPalette div {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 4px;
+                cursor: pointer;
+            }
+
+            /* Brush size */
+            #brushSize {
+                margin-top: 20px;
+            }
+
+            /* Body */
+            body {
+                background-color: #ccc;
+                overflow: hidden;
+            }
+
+            /* Paint area */
+            #paintArea {
+                width: 900px;
+                height: 600px;
+                background-color: #fff;
+                float: left;
+                position: relative;
+            }
+
+            #paintArea canvas {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                cursor: crosshair;
+            }
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            var selectedColor = "red";
+            var brushSize = 2;
+            
+            $(document).ready(function(){
+                $("#colorPalette div").click(function(){
+                    selectedColor = this.id;
+                });
+
+                $("#brushSize input").change(function(){
+                    brushSize = this.value;
+                });
+            });
+            
+            function save() {
+                var paintCanvas = document.getElementById("paintCanvas");
+                window.open(paintCanvas.toDataURL("image/png"), "lastState");
+            }
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <hgroup>
+                <h1>HTML Paint</h1>
+            </hgroup>
+        </header>
+        <section id="tools">
+            <section id="colorPalette">
+                <div id="red" style="background-color:red;"></div>
+                <div id="green" style="background-color:green;"></div>
+                <div id="blue" style="background-color:blue;"></div>
+                <div id="yellow" style="background-color:yellow;"></div>
+                <div id="purple" style="background-color:purple;"></div>
+                <div id="cyan" style="background-color:cyan;"></div>
+                <div id="black" style="background-color:black;"></div>
+                <div id="white" style="background-color:white;"></div>
+                <div id="pink" style="background-color:pink;"></div>
+                <div id="orange" style="background-color:orange;"></div>
+                <div id="brown" style="background-color:brown;"></div>
+                <div id="gray" style="background-color:gray;"></div>
+                <div id="lightgreen" style="background-color:lightgreen;"></div>
+                <div id="lightblue" style="background-color:lightblue;"></div>
+                <div id="magenta" style="background-color:magenta;"></div>
+                <div id="lime" style="background-color:lime;"></div>
+            </section>
+            
+            <section id="brushSize">
+                <label for="small">S</label>
+                <input type="radio" id="small" name="brushSize" value="2" checked><br>
+                <label for="medium">M</label>
+                <input type="radio" id="medium" name="brushSize" value="5"><br>
+                <label for="large">L</label>
+                <input type="radio" id="large" name="brushSize" value="10"><br>
+            </section>
+            
+            
+            <section id="toolBox">
+            	<label for="square">Square</label>
+                <input type="checkbox" id="square"><br><br><br>
+                <input type="button" value="Save" onclick="save()">
+            </section>
+        </section>
+        <section id="paintArea">
+            <canvas id="paintCanvas" width="900" height="600"></canvas>
+            <canvas id="hintCanvas" width="900" height="600"></canvas>
+        </section>
+    </body>
+
+    <script type="text/javascript">
+        var paintCanvas = document.getElementById("paintCanvas");
+        var paintContext = paintCanvas.getContext("2d");
+        var hintCanvas = document.getElementById("hintCanvas");
+        var hintContext = hintCanvas.getContext("2d");
+
+        var isSquare = false;
+        
+        var isDragging = false;
+        var startPoint = { x:0, y:0 };
+        
+        
+        function canvasReady(){
+            hintCanvas.onmousedown = paintMouseDown;
+            hintCanvas.onmouseup = paintMouseUp;
+            hintCanvas.onmousemove = paintMouseMove;
+        }
+        
+        function paintMouseDown(e){
+            isDragging = true;
+            isSquare = document.getElementById("square").checked;
+            startPoint.x = e.offsetX;
+            startPoint.y = e.offsetY;
+            paintContext.lineWidth = brushSize;
+            paintContext.beginPath();
+            paintContext.moveTo(startPoint.x, startPoint.y);
+            paintContext.strokeStyle = selectedColor;
+        }
+        function paintMouseUp(e){
+            isDragging = false;
+            if(isSquare){
+                hintCanvas.width = hintCanvas.width;
+                var width = e.offsetX - startPoint.x;
+                var height = e.offsetY - startPoint.y;
+                
+                paintContext.beginPath();
+                paintContext.fillStyle = selectedColor;
+                paintContext.fillRect(startPoint.x, startPoint.y, width, height);
+            }
+        }
+        function paintMouseMove(e){
+            if(isDragging){
+                if(isSquare){
+                    hintCanvas.width = hintCanvas.width;
+                    var width = e.offsetX - startPoint.x;
+                    var height = e.offsetY - startPoint.y;
+                    hintContext.strokeRect(startPoint.x, startPoint.y, width, height);
+                }
+                else{
+                    paintContext.lineTo(e.offsetX, e.offsetY);
+                    paintContext.stroke();
+                }
+            }
+        }
+        
+        canvasReady();
+    </script>
+</html>
