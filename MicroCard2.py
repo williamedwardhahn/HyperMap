@@ -1,32 +1,56 @@
-from microdot_asyncio import Microdot, Response
+from microdot import Microdot, Response
 import pandas as pd
 import os
 
 app = Microdot()
 Response.default_content_type = 'text/html'
 
-def create_card_csv(card_file, title, text, image):
-    card_df = pd.DataFrame([{
+csv_file = 'cards.csv'
+
+def create_card_csv(card_name, title, text, image):
+    new_card = pd.DataFrame([{
+        'card_name': card_name,
         'title': title,
         'text': text,
         'image': image
     }])
-    card_df.to_csv(card_file, index=False)
+    
+    if os.path.isfile(csv_file):
+        card_df = pd.read_csv(csv_file)
+        card_df = pd.concat([card_df, new_card])
+    else:
+        card_df = new_card
 
-def load_card_from_csv(card_file):
-    card_df = pd.read_csv(card_file)
-    return card_df.iloc[0]
+    card_df.to_csv(csv_file, index=False)
+
+def load_card_from_csv(card_name):
+    card_df = pd.read_csv(csv_file)
+    return card_df.loc[card_df['card_name'] == card_name].iloc[0]
+
+def get_cards():
+    if os.path.isfile(csv_file):
+        card_df = pd.read_csv(csv_file)
+        return card_df['card_name'].tolist()
+    return []
 
 def card_doc(data, card_name):
+    cards = get_cards()
     card_index = cards.index(card_name)
     prev_card = cards[card_index - 1] if card_index - 1 >= 0 else cards[-1]
     next_card = cards[card_index + 1] if card_index + 1 < len(cards) else cards[0]
     
-    doc = f'''
+    doc = f"""
         <html>
             <head>
                 <title>{data['title']}</title>
                 <style>
+                    img {{
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        margin-left: auto;
+                        margin-right: auto;
+                    }}
                     body {{
                         font-family: Arial, sans-serif;
                         display: grid;
@@ -67,10 +91,6 @@ def card_doc(data, card_name):
                         color: #333;
                         margin-top: 0;
                     }}
-                    img {{
-                        max-width: 100%;
-                        height: auto;
-                    }}
                 </style>
             </head>
             <body>
@@ -83,7 +103,8 @@ def card_doc(data, card_name):
                 </div>
             </body>
         </html>
-    '''
+    """
+    
     return doc
 
 
@@ -191,32 +212,28 @@ default_cards = [
         'card_name': 'Introduction',
         'title': 'Introduction to HyperCard',
         'text': 'HyperCard is an application program and programming tool for Apple Macintosh and Apple IIGS computers...',
-        'image': 'https://example.com/hypercard.png'
+        'image': 'https://i.ytimg.com/vi/tx_WCIAM4bA/maxresdefault.jpg'
     },
     {
         'card_name': 'Features',
         'title': 'HyperCard Features',
         'text': 'HyperCard also includes a built-in programming language called HyperTalk for manipulating data...',
-        'image': 'https://example.com/hypercard_features.png'
+        'image': 'https://cdn.osxdaily.com/wp-content/uploads/2017/05/hypercard-on-mac-browser-emu-1-610x414.jpg'
     },
     {
         'card_name': 'Legacy',
         'title': 'HyperCard Legacy',
         'text': 'Though HyperCard was initially released in 1987 and later discontinued in 2004, it left a substantial impact...',
-        'image': 'https://example.com/hypercard_legacy.png'
+        'image': 'https://cdn.arstechnica.net//wp-content/uploads/2012/05/cosmic-osmo.png'
     }
 ]
 
-cards = []
 
-# Create default cards on startup if they don't exist
 for card in default_cards:
     card_name = card['card_name']
-    card_file = f'{card_name}_state.csv'
-    if not os.path.isfile(card_file):
-        create_card_csv(card_file, card['title'], card['text'], card['image'])
-    cards.append(card_name)
-
+    create_card_csv(card_name, card['title'], card['text'], card['image'])
+    
+    
 @app.route('/')
 def home(request):
     doc = f'''
@@ -250,7 +267,7 @@ def home(request):
             <body>
                 <h1>HyperCard Demo</h1>
                 <ul>
-                    {''.join([f'<li><a href="/card/{card}">{card}</a></li>' for card in cards])}
+                    {''.join([f'<li><a href="/card/{card}">{card}</a></li>' for card in get_cards()])}
                 </ul>
                 <a href="/new_card">Create a new Card</a>
             </body>
@@ -259,30 +276,23 @@ def home(request):
     return doc
 
 
+
 @app.route('/new_card')
 def new_card(request):
     return create_card_doc()
 
 @app.route('/card/<card_name>')
 def card(request, card_name):
-    card_file = f'{card_name}_state.csv'
-    if not os.path.isfile(card_file):
-        return create_card_doc()
-    card_data = load_card_from_csv(card_file)
+    card_data = load_card_from_csv(card_name)
     return card_doc(card_data, card_name)
 
 @app.route('/create_card', methods=['POST'])
 def create_card(request):
-    global cards
     card_name = request.form.get('card_name')
-    card_file = f'{card_name}_state.csv'
-    if os.path.isfile(card_file):
-        return f'Card {card_name} already exists.'
     title = request.form.get('title')
     text = request.form.get('text')
     image = request.form.get('image')
-    create_card_csv(card_file, title, text, image)
-    cards.append(card_name)
+    create_card_csv(card_name, title, text, image)
     return f'Card {card_name} has been created. <a href="/card/{card_name}">View Card</a>'
 
 app.run(debug=True, port=8008)
