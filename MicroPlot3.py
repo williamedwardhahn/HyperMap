@@ -53,9 +53,16 @@ async def landing(request):
     return page_content
 
 
+def get_svg(fig):
+    img = io.StringIO()
+    fig.savefig(img, format='svg')
+    return '<svg' + img.getvalue().split('<svg')[1]
+    
+    
 
 
-
+@app.route('/scatter')
+@app.route('/scatter/')
 @app.route('/scatter/<points>')
 async def scatter(request, points = "10"):
 
@@ -75,12 +82,7 @@ async def scatter(request, points = "10"):
     ax.set_title(f'There are {points} data points!')
     ax.grid(True)
 
-    img = io.StringIO()
-    fig.savefig(img, format='svg')
-    #clip off the xml headers from the image
-    svg_img = '<svg' + img.getvalue().split('<svg')[1]
-    
-    return svg_img
+    return get_svg(fig)
 
     
 
@@ -103,11 +105,8 @@ async def line(request, points = "10"):
     ax.set_title(f'{points} Points Line Plot!')
     ax.grid(True)
 
-    img = io.StringIO()
-    fig.savefig(img, format='svg')
-    svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return svg_img
+    return get_svg(fig)
     
 
 @app.route('/histogram')    
@@ -127,12 +126,8 @@ async def histogram(request, points = "10"):
     ax.set_ylabel('Frequency')
     ax.set_title(f'{points} Points Histogram!')
     ax.grid(True)
-
-    img = io.StringIO()
-    fig.savefig(img, format='svg')
-    svg_img = '<svg' + img.getvalue().split('<svg')[1]
     
-    return svg_img
+    return get_svg(fig)
     
 
 @app.route('/bar')    
@@ -154,11 +149,7 @@ async def bar(request, points = "10"):
     ax.set_title(f'{points} Bars Bar Plot!')
     ax.grid(True)
 
-    img = io.StringIO()
-    fig.savefig(img, format='svg')
-    svg_img = '<svg' + img.getvalue().split('<svg')[1]
-    
-    return svg_img
+    return get_svg(fig)
     
     
 app.run(host="0.0.0.0",port=8008,debug = True)
