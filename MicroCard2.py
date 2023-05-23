@@ -185,30 +185,6 @@ def create_card_doc():
 
 
 
-@app.route('/card/<card_name>')
-def card(request, card_name):
-    card_file = f'{card_name}_state.csv'
-    if not os.path.isfile(card_file):
-        return create_card_doc()
-    card_data = load_card_from_csv(card_file)
-    return card_doc(card_data, card_name)
-
-cards = []
-
-@app.route('/create_card', methods=['POST'])
-def create_card(request):
-    global cards
-    card_name = request.form.get('card_name')
-    card_file = f'{card_name}_state.csv'
-    if os.path.isfile(card_file):
-        return f'Card {card_name} already exists.'
-    title = request.form.get('title')
-    text = request.form.get('text')
-    image = request.form.get('image')
-    create_card_csv(card_file, title, text, image)
-    cards.append(card_name)
-    return f'Card {card_name} has been created. <a href="/card/{card_name}">View Card</a>'
-
 
 default_cards = [
     {
