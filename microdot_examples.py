@@ -47,7 +47,7 @@ app.run(debug=True, port=8008)
 #Guessing Game
 ######################################################################
 
-from microdot_asyncio import Microdot, Response
+from microdot import Microdot, Response
 import random
 
 app = Microdot()
@@ -84,7 +84,7 @@ random_number = random.randint(1, 100)
 guesses = 0
 
 @app.route('/', methods=['GET', 'POST'])
-async def home(request):
+def home(request):
     global random_number, guesses
 
     if request.method == 'POST':
@@ -109,13 +109,14 @@ async def home(request):
     return htmldoc(guesses, message, color)
 
 @app.route('/new_game', methods=['POST'])
-async def new_game(request):
+def new_game(request):
     global random_number, guesses
     random_number = random.randint(1, 100)
     guesses = 0
     return htmldoc(guesses, 'Guess a number between 1 and 100.', '515262') # Grey
 
 app.run(debug=True, port=8008)
+
 
 
 
