@@ -29,3 +29,7 @@ https://formbuilder.online/
 https://www.w3schools.com/w3css/w3css_templates.asp
 
 https://svgeditoronline.com/editor/
+
+
+# SVG Graph
+https://colab.research.google.com/drive/19jpeg0mTs_cKPPzffuVcFxQQjXgUcXAV?usp=sharing
