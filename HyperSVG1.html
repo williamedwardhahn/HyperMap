@@ -45,7 +45,7 @@
         const svgElement = document.getElementById('svg-editor');
         const deleteButton = document.getElementById('delete-shape');
         const slideNumbersElement = document.getElementById('slide-numbers');
-        const scripts = new Map(); // We will store scripts for elements here
+        const scripts = new Map();
 
         svgElement.addEventListener('mousedown', handleMouseDown);
         svgElement.addEventListener('mousemove', handleMouseMove);
@@ -57,11 +57,10 @@
                 selectedElement = event.target;
                 const script = prompt('Enter a script for this object:', scripts.get(selectedElement) || '');
                 if (script !== null) {
-                    scripts.set(selectedElement, script); // Store the script
+                    scripts.set(selectedElement, script);
                 }
                 event.preventDefault();
-            }
-            else if (event.target.classList.contains('draggable')) {
+            } else if (event.target.classList.contains('draggable')) {
                 selectedElement = event.target;
                 dragInfo = {
                     initialMousePos: { x: event.clientX, y: event.clientY },
@@ -90,11 +89,16 @@
         }
 
         function handleDoubleClick(event) {
-            if (event.target.classList.contains('draggable') && scripts.has(event.target)) {
-                const script = new Function('return ' + scripts.get(event.target)).bind(event.target);
-                script();
-            }
+    if (event.target.classList.contains('draggable') && scripts.has(event.target)) {
+        const script = new Function('return ' + scripts.get(event.target)).bind(event.target);
+        script();
+    } else if (event.target.tagName === 'text') {
+        const newText = prompt("Enter new text:", event.target.textContent);
+        if (newText !== null) {
+            event.target.textContent = newText;
         }
+    }
+}
 
         document.getElementById('new-card').addEventListener('click', () => {
             cards.push([]);
