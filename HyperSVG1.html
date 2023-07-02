@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Professional SVG Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        #svg-editor {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #000;
+        }
+        .toolbar, .slide-numbers {
+            padding: 10px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+        }
+        .toolbar button, .slide-numbers button {
+            margin-right: 10px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button id="new-card">New Card</button>
+        <button id="add-circle">Add Circle</button>
+        <button id="add-rect">Add Rectangle</button>
+        <button id="add-text">Add Text</button>
+        <button id="delete-shape" disabled>Delete Selected Shape</button>
+    </div>
+
+    <svg id="svg-editor" oncontextmenu="return false;"></svg>
+
+    <div id="slide-numbers" class="slide-numbers"></div>
+
+    <script>
+        let cards = [];
+        let selectedCardIndex = -1;
+        let selectedElement = null;
+        let dragInfo = null;
+        let nextId = 1;
+        const svgElement = document.getElementById('svg-editor');
+        const deleteButton = document.getElementById('delete-shape');
+        const slideNumbersElement = document.getElementById('slide-numbers');
+        const scripts = new Map(); // We will store scripts for elements here
+
+        svgElement.addEventListener('mousedown', handleMouseDown);
+        svgElement.addEventListener('mousemove', handleMouseMove);
+        svgElement.addEventListener('mouseup', handleMouseUp);
+        svgElement.addEventListener('dblclick', handleDoubleClick);
+
+        function handleMouseDown(event) {
+            if (event.button === 2 && event.target.classList.contains('draggable')) {
+                selectedElement = event.target;
+                const script = prompt('Enter a script for this object:', scripts.get(selectedElement) || '');
+                if (script !== null) {
+                    scripts.set(selectedElement, script); // Store the script
+                }
+                event.preventDefault();
+            }
+            else if (event.target.classList.contains('draggable')) {
+                selectedElement = event.target;
+                dragInfo = {
+                    initialMousePos: { x: event.clientX, y: event.clientY },
+                    initialPos: getCenter(selectedElement)
+                };
+                deleteButton.disabled = false;
+            }
+        }
+
+        function handleMouseMove(event) {
+            if (selectedElement && dragInfo) {
+                let dx = event.clientX - dragInfo.initialMousePos.x;
+                let dy = event.clientY - dragInfo.initialMousePos.y;
+                let newCenter = {
+                    x: dragInfo.initialPos.x + dx,
+                    y: dragInfo.initialPos.y + dy
+                };
+
+                setCenter(selectedElement, newCenter);
+            }
+        }
+
+        function handleMouseUp(event) {
+            selectedElement = null;
+            dragInfo = null;
+        }
+
+        function handleDoubleClick(event) {
+            if (event.target.classList.contains('draggable') && scripts.has(event.target)) {
+                const script = new Function('return ' + scripts.get(event.target)).bind(event.target);
+                script();
+            }
+        }
+
+        document.getElementById('new-card').addEventListener('click', () => {
+            cards.push([]);
+            switchCard(cards.length - 1);
+        });
+
+        document.getElementById('add-circle').addEventListener('click', () => {
+            let circle = createShape('circle', {
+                'cx': 50,
+                'cy': 50,
+                'r': 40,
+                'stroke': 'green',
+                'stroke-width': 4,
+                'fill': 'yellow'
+            });
+            cards[selectedCardIndex].push(circle);
+            svgElement.appendChild(circle);
+        });
+
+        document.getElementById('add-rect').addEventListener('click', () => {
+            let rect = createShape('rect', {
+                'x': 50,
+                'y': 50,
+                'width': 80,
+                'height': 60,
+                'stroke': 'blue',
+                'stroke-width': 4,
+                'fill': 'lightblue'
+            });
+            cards[selectedCardIndex].push(rect);
+            svgElement.appendChild(rect);
+        });
+
+        document.getElementById('add-text').addEventListener('click', () => {
+            let text = createShape('text', {
+                'x': 50,
+                'y': 50,
+                'font-size': '16px',
+                'font-family': 'Arial',
+                'fill': 'black'
+            });
+            text.textContent = 'Text Block';
+            cards[selectedCardIndex].push(text);
+            svgElement.appendChild(text);
+        });
+
+        deleteButton.addEventListener('click', () => {
+            if (selectedElement) {
+                let card = cards[selectedCardIndex];
+                let index = card.indexOf(selectedElement);
+                if (index !== -1) {
+                    card.splice(index, 1);
+                }
+                svgElement.removeChild(selectedElement);
+                selectedElement = null;
+                deleteButton.disabled = true;
+            }
+        });
+
+        function switchCard(cardIndex) {
+            if (selectedCardIndex !== -1) {
+                cards[selectedCardIndex].forEach(el => svgElement.removeChild(el));
+            }
+
+            selectedCardIndex = cardIndex;
+            cards[selectedCardIndex].forEach(el => svgElement.appendChild(el));
+
+            deleteButton.disabled = true;
+            selectedElement = null;
+
+            slideNumbersElement.innerHTML = '';
+            for (let i = 0; i < cards.length; i++) {
+                let btn = document.createElement('button');
+                btn.textContent = i + 1;
+                btn.disabled = (i === cardIndex);
+                btn.addEventListener('click', () => switchCard(i));
+                slideNumbersElement.appendChild(btn);
+            }
+        }
+
+        function createShape(tagName, attributes) {
+            let newShape = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+            newShape.setAttribute('class', 'draggable');
+            for (const attr in attributes) {
+                newShape.setAttribute(attr, attributes[attr]);
+            }
+            let id = 'shape-' + nextId++;
+            newShape.id = id;
+            setCenter(newShape, { x: 50, y: 50 });
+            return newShape;
+        }
+
+        function getCenter(element) {
+            if (element.tagName === 'circle') {
+                return {
+                    x: Number(element.getAttribute('cx')),
+                    y: Number(element.getAttribute('cy'))
+                };
+            } else if (element.tagName === 'rect' || element.tagName === 'text') {
+                return {
+                    x: Number(element.getAttribute('x')) + Number(element.getAttribute('width')) / 2,
+                    y: Number(element.getAttribute('y')) + Number(element.getAttribute('height')) / 2
+                };
+            }
+        }
+
+        function setCenter(element, pos) {
+            if (element.tagName === 'circle') {
+                element.setAttribute('cx', pos.x);
+                element.setAttribute('cy', pos.y);
+            } else if (element.tagName === 'rect') {
+                element.setAttribute('x', pos.x - element.getAttribute('width') / 2);
+                element.setAttribute('y', pos.y - element.getAttribute('height') / 2);
+            } else if (element.tagName === 'text') {
+                element.setAttribute('x', pos.x);
+                element.setAttribute('y', pos.y);
+            }
+        }
+
+        function initializeEditor() {
+            cards.push([]);
+            switchCard(0);
+        }
+
+        window.addEventListener('load', initializeEditor);
+    </script>
+</body>
+</html>
