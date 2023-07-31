@@ -16,21 +16,24 @@ def repl(request: Request):
     new_stdout = io.StringIO()
     sys.stdout = new_stdout
 
-    final_result = None
+    result = None
     try:
-        final_result = eval(code, {})
-        printed_output = new_stdout.getvalue().strip()
-        if printed_output:
-            result = printed_output
-        elif final_result is not None:
-            result = str(final_result)
-        else:
-            result = "Executed successfully, no output."
-    except Exception as e:
-        result = "An error occurred: " + str(e)
+        result = eval(code, {})
+    except:
+        try:
+            exec(code, {})
+            printed_output = new_stdout.getvalue().strip()
+            if printed_output:
+                result = printed_output
+            else:
+                result = "Executed successfully, no output."
+        except Exception as e:
+            result = "An error occurred: " + str(e)
 
     sys.stdout = old_stdout
-    return result
+    return str(result)
+
+
 
 def get_editor_html():
     return '''
@@ -152,4 +155,3 @@ def get_editor_html():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
-
