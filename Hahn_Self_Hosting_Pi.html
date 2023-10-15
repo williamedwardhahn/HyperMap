@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Self-Hosting Page</title>
+  <style>
+    #editButton {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 24px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    #editButton:hover {
+      opacity: 1;
+    }
+  </style>
+  <script>
+    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('load', handleRoute);
+
+    function handleRoute() {
+      const content = decodeURIComponent(window.location.hash.substring(1).split('&')[1] || '');
+      const route = window.location.hash.substring(1).split('&')[0] || 'display';
+      
+      if (route === 'edit') {
+        document.getElementById('editRoute').style.display = 'block';
+        document.getElementById('displayArea').style.display = 'none';
+        document.getElementById('editor').value = content;
+      } else {
+        document.getElementById('editRoute').style.display = 'none';
+        document.getElementById('displayArea').style.display = 'block';
+        document.getElementById('displayArea').innerHTML = content;
+      }
+    }
+
+    function saveContent() {
+      const editorContent = document.getElementById('editor').value;
+      window.location.hash = `display&${encodeURIComponent(editorContent)}`;
+    }
+
+    function goToEdit() {
+      const currentContent = decodeURIComponent(window.location.hash.substring(1).split('&')[1] || '');
+      window.location.hash = `edit&${encodeURIComponent(currentContent)}`;
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <div id="editButton" onclick="goToEdit()">π</div>
+
+  <!-- Display Area -->
+  <div id="displayArea"></div>
+
+  <!-- Edit Route -->
+  <div id="editRoute" style="display: none;">
+    <textarea id="editor" rows="10" cols="50"></textarea>
+    <button onclick="saveContent()">Save</button>
+  </div>
+
+</body>
+</html>
+
