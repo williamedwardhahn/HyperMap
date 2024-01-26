@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Display Board</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        #board {
+            width: 80vw;
+            height: 30vw;
+            display: grid;
+            grid-template-columns: repeat(22, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 0.5vw;
+        }
+        .tile {
+            background-color: #bbb; /* Muted color for empty tiles */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5vw;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .tile.active {
+            background-color: #333; /* Active color for tiles with letters */
+        }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const board = document.getElementById('board');
+            const rows = 6, columns = 22;
+            initializeBoard(rows, columns);
+            const messages = getMessagesFromURL();
+            cycleMessages(messages, rows, columns, board);
+
+            function initializeBoard(rows, columns) {
+                for (let i = 0; i < rows * columns; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    board.appendChild(tile);
+                }
+            }
+
+            function getMessagesFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const messagesParam = urlParams.get('messages');
+                return messagesParam ? messagesParam.split('|') : ["Welcome to Retro Display"];
+            }
+
+            function cycleMessages(messages, rows, columns, board) {
+                let currentMessageIndex = 0;
+                setInterval(() => {
+                    displayMessage(messages[currentMessageIndex], rows, columns, board);
+                    currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+                }, 4000); // Change message every 4 seconds
+                displayMessage(messages[currentMessageIndex], rows, columns, board); // Display first message immediately
+            }
+
+            function displayMessage(message, rows, columns, board) {
+                const tiles = board.getElementsByClassName('tile');
+                clearTiles(tiles);
+
+                const middleRowIndex = Math.floor(rows / 2) * columns;
+                const startPosition = middleRowIndex + Math.max(0, Math.floor((columns - message.length) / 2));
+                
+                let charIndex = startPosition;
+                message.split('').forEach((char) => {
+                    if (charIndex < tiles.length) {
+                        const tile = tiles[charIndex++];
+                        tile.textContent = char;
+                        tile.classList.add('active'); // Mark the tile as active
+                    }
+                });
+            }
+
+            function clearTiles(tiles) {
+                for (const tile of tiles) {
+                    tile.textContent = '';
+                    tile.classList.remove('active'); // Remove the active class
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
